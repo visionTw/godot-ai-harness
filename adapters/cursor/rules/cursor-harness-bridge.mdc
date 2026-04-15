@@ -1,0 +1,10 @@
+---
+description: Cursor 与 Harness 绑定规则
+alwaysApply: true
+---
+
+# Cursor Harness Bridge
+
+- 当前项目应从 Harness 同步通用规则与技能模板。
+- 项目专有知识优先保留在业务仓库文档。
+- 使用 MCP 前先检查 `.cursor/mcp.json` 是否已由 harness 下发。

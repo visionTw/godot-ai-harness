@@ -1,0 +1,7 @@
+{
+  "projectSlug": "replace-with-project-slug",
+  "projectRoot": "D:/path/to/your/project",
+  "godotPath": "",
+  "memoryRoot": "D:/path/to/local-memory-root",
+  "client": "cursor"
+}

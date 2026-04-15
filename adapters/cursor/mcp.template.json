@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "godot": {
+      "command": "npx",
+      "args": [
+        "@coding-solo/godot-mcp"
+      ],
+      "env": {
+        "DEBUG": "true",
+        "NPM_CONFIG_CACHE": ".cursor/.npm-cache"
+      }
+    }
+  }
+}

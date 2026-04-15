@@ -1,0 +1,11 @@
+---
+description: Godot 跨项目通用执行规则
+alwaysApply: true
+---
+
+# Godot Core Workflow
+
+- 涉及运行验证、调试输出、运行时行为时，优先使用 MCP。
+- 功能改动后至少执行一次 smoke 检查并记录结果。
+- 阶段性任务必须回写开发日志与测试证据。
+- 默认不做远端 push；仅在用户明确要求时提交和推送。
