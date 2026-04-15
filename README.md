@@ -1,5 +1,7 @@
 # Godot AI Harness (Cursor + ClaudeCode)
 
+AI harness for Godot (Cursor and ClaudeCode).
+
 这是一个面向 Godot 项目的双客户端 AI 协作框架仓库，目标是：
 
 - 在 Cursor 与 ClaudeCode 之间共享同一套通用流程。
