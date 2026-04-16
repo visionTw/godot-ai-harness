@@ -17,6 +17,16 @@ AI harness for Godot (Cursor and ClaudeCode).
 - `scripts/`：一键切换脚本与配置下发脚本。
 - `docs/`：接入说明、版本升级说明。
 
+## 新增可复用能力（近期沉淀）
+
+- 规则：`core/rules/post-change-runtime-check.mdc`
+  - 改动后自动进入“启动 -> smoke -> 证据回写”的闭环。
+- 技能：`core/skills/iteration-close-loop/SKILL.md`
+  - 将迭代收敛为可验收结论并提炼可复用条目。
+- 命令：
+  - `core/commands/post-change-runtime-check.md`
+  - `core/commands/windows-package-local.md`
+
 ## 使用方式（简版）
 
 1. 在业务项目中配置 `HARNESS_ROOT` 指向本仓库路径。
