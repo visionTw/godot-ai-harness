@@ -1,5 +1,6 @@
 #!/bin/zsh
 set -euo pipefail
+setopt NULL_GLOB
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HARNESS_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -39,26 +40,23 @@ cp -f "$HARNESS_ROOT/adapters/claudecode/CLAUDE.template.md" "$PROJECT_ROOT/.cla
 cp -f "$HARNESS_ROOT/adapters/claudecode/mcp.template.json" "$PROJECT_ROOT/.claude/mcp.json"
 
 echo "[Harness] Syncing rules ..."
-if compgen -G "$HARNESS_ROOT/core/rules/*.mdc" > /dev/null; then
-  for f in "$HARNESS_ROOT/core/rules/"*.mdc; do
-    base="$(basename "$f" .mdc)"
-    cp -f "$f" "$PROJECT_ROOT/.claude/rules/_harness_${base}.md"
-  done
-fi
+for f in "$HARNESS_ROOT/core/rules/"*.mdc; do
+  [ -f "$f" ] || continue
+  base="$(basename "$f" .mdc)"
+  cp -f "$f" "$PROJECT_ROOT/.claude/rules/_harness_${base}.md"
+done
 
 echo "[Harness] Syncing commands ..."
-if compgen -G "$HARNESS_ROOT/core/commands/*.md" > /dev/null; then
-  for f in "$HARNESS_ROOT/core/commands/"*.md; do
-    cp -f "$f" "$PROJECT_ROOT/.claude/commands/_harness_$(basename "$f")"
-  done
-fi
+for f in "$HARNESS_ROOT/core/commands/"*.md; do
+  [ -f "$f" ] || continue
+  cp -f "$f" "$PROJECT_ROOT/.claude/commands/_harness_$(basename "$f")"
+done
 
 echo "[Harness] Syncing agents ..."
-if compgen -G "$HARNESS_ROOT/core/agents/*.md" > /dev/null; then
-  for f in "$HARNESS_ROOT/core/agents/"*.md; do
-    cp -f "$f" "$PROJECT_ROOT/.claude/agents/_harness_$(basename "$f")"
-  done
-fi
+for f in "$HARNESS_ROOT/core/agents/"*.md; do
+  [ -f "$f" ] || continue
+  cp -f "$f" "$PROJECT_ROOT/.claude/agents/_harness_$(basename "$f")"
+done
 
 echo "[Harness] Syncing skills ..."
 if [ -d "$HARNESS_ROOT/core/skills" ]; then
