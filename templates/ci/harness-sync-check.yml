@@ -1,0 +1,76 @@
+name: Harness Sync Check
+
+# 用途：
+#   验证业务仓 .cursor/_harness_* 是否与 vendor/godot-ai-harness/core/ 完全一致。
+#   失败说明：要么有人手改了同步产物，要么 vendor 升级后忘了重跑 bootstrap。
+#
+# 部署方式：
+#   把本文件拷贝到业务仓 .github/workflows/harness-sync-check.yml
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify-harness-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install zsh (bootstrap scripts use zsh shebang)
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      - name: Verify submodule pointer is reachable on origin
+        run: |
+          set -e
+          cd vendor/godot-ai-harness
+          PTR=$(git rev-parse HEAD)
+          # 解 shallow，便于做祖先判断
+          git fetch --unshallow 2>/dev/null || git fetch --quiet origin
+          if [ "$PTR" = "$(git rev-parse origin/main 2>/dev/null)" ] \
+             || git merge-base --is-ancestor "$PTR" origin/main 2>/dev/null; then
+            echo "OK: submodule pointer $PTR reachable via origin/main"
+          else
+            echo "::error::submodule 指针 $PTR 不在 godot-ai-harness origin/main 历史中。"
+            echo "        说明业务仓提交了一个还没 push 的 harness commit。"
+            echo "        请先在 godot-ai-harness 仓 push 该 commit，再 push 业务仓。"
+            exit 1
+          fi
+
+      - name: Run bootstrap (skip remote check, no client switch)
+        run: |
+          set -e
+          chmod +x tools/harness/bootstrap.command 2>/dev/null || true
+          chmod +x vendor/godot-ai-harness/scripts/use-cursor.command 2>/dev/null || true
+          zsh tools/harness/bootstrap.command --skip-update-check --client cursor
+
+      - name: Verify .cursor/_harness_* matches vendor content
+        run: |
+          set -e
+          if ! git diff --quiet .cursor; then
+            echo "::error::.cursor 目录在 bootstrap 后出现 diff，说明同步产物与仓库快照不一致。"
+            echo "本地修复方法："
+            echo "  ./tools/harness/bootstrap.command --skip-update-check"
+            echo "  git add .cursor && git commit -m 'Refresh harness sync artifacts'"
+            echo "---- diff summary ----"
+            git diff --stat .cursor
+            echo "---- diff (truncated to 200 lines) ----"
+            git diff .cursor | head -200
+            exit 1
+          fi
+          echo "OK: .cursor 与 bootstrap 输出一致"
+
+      - name: Verify _harness_active marker present
+        run: |
+          if [ ! -f ".cursor/rules/_harness_active.mdc" ]; then
+            echo "::error::缺失 .cursor/rules/_harness_active.mdc，启用标识未生效。"
+            exit 1
+          fi
+          echo "OK: harness active marker present"
