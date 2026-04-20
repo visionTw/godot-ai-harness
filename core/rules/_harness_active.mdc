@@ -1,0 +1,19 @@
+---
+description: Harness 启用标识，触发回复前缀
+alwaysApply: true
+---
+
+# Godot AI Harness Active Marker
+
+- 只要本规则被加载到当前会话，意味着 `godot-ai-harness` 已经在当前业务仓生效。
+- 每次 AI 助手输出回复时，**必须在回复正文最开头独立一行**输出：
+
+```
+【godot-ai-harness 生效中】
+```
+
+- 该前缀位于任何 markdown 标题、代码块、引用之前，且不与其他段落合并；其后空一行再输出正常内容。
+- 该前缀仅在用户当次会话明确要求"安静模式 / 不要前缀"时省略；新会话默认仍需输出。
+- 该前缀不替代任何已有规则与流程；其他 alwaysApply 规则仍然生效。
+- 同步来源：`vendor/godot-ai-harness/core/rules/_harness_active.mdc`
+- 在业务仓中文件路径为：`.cursor/rules/_harness_active.mdc`，由 `bootstrap` 自动下发，**禁止手工编辑**。
