@@ -79,6 +79,39 @@
 
 ---
 
+## 四、Git / GitHub 操作
+
+### H-301 团队 push 凭证统一 HTTPS 时，新仓 SSH remote 报 Host key verification failed
+- 现象：在已经习惯 HTTPS push 的机器上，给新仓配 `git@github.com:...` SSH 形式 remote，push 报 `Host key verification failed`。
+- 根因：用户从未通过 SSH 连过 github.com，`~/.ssh/known_hosts` 里没有 github.com 的 host key；且没配 SSH key 或 ssh-agent。
+- 解决：
+  - 简单做法：所有仓库统一用 HTTPS remote（`https://github.com/owner/repo.git`），共享同一份凭证（macOS Keychain / Git Credential Manager）。
+  - 想用 SSH：至少需要 `ssh-keyscan github.com >> ~/.ssh/known_hosts` 添加 host key + 配置 SSH key 上传到 GitHub。
+- 影响范围：AI 帮人配置新仓 remote 时；多机协作时凭证流不一致的场景。
+- 录入：2026-04 / Game_RogueCard。
+
+### H-302 GitHub 创建 repo 时勾 "Initialize with README" 导致首次 push 被拒
+- 现象：本地仓库已有完整 README 与多个 commit，第一次 `git push -u origin main` 报 `! [rejected] main -> main (fetch first)`。
+- 根因：GitHub Web UI 创建 repo 时勾选 "Initialize this repository with a README" 会在远端预先创建一个 `Initial commit`，与本地历史无共同祖先 → push 被拒。
+- 解决：
+  - 推荐：`git pull --rebase origin main`，把本地 commits 接到远端 Initial commit 之后；如果 README 冲突，`git checkout --ours README.md && git add README.md && git rebase --continue`（保留本地完整 README）。
+  - 替代：`git push --force origin main`（仅在远端只有无意义的初始 README、且 100% 确认无人在用时使用）。
+  - **预防**：在 GitHub 创建 repo 时**不要勾** "Initialize with README" / "Add .gitignore" / "Choose a license"，让远端为空仓库。
+- 影响范围：所有"先本地写好再创建 GitHub repo"的工作流。
+- 录入：2026-04 / Game_RogueCard。
+
+### H-303 非交互终端 `git rebase --continue` 卡在 EDITOR
+- 现象：在脚本 / AI agent / CI 等非交互场景跑 `git rebase --continue`，报 `error: Terminal is dumb, but EDITOR unset`，rebase 被中断。
+- 根因：rebase 默认要打开 commit message 编辑器（即使是 cherry-pick / replay 类操作），无 EDITOR 就 fail。
+- 解决：
+  - `GIT_EDITOR=true git rebase --continue`（用 `true` 命令做 no-op editor）。
+  - 或全局 `git config --global core.editor "true"`（仅在 AI / 脚本环境，不要对人工开发机这样配）。
+  - 或 `git -c core.editor=true rebase --continue` 单次。
+- 影响范围：AI agent / CI / cron 中所有用到 rebase / merge / commit 的场景。
+- 录入：2026-04 / Game_RogueCard。
+
+---
+
 ## 模板（复制使用）
 
 ```
