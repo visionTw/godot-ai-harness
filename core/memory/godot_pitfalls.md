@@ -3,6 +3,10 @@
 本文件用于沉淀**所有使用 godot-ai-harness 的项目**共同遇到的 Godot 引擎踩坑与处理方式。
 仅记录"对所有 Godot 4.x 项目可复用"的内容；项目专有问题请写到业务仓的 `docs/ai_project_memory.md`。
 
+> 关联文件：
+> - 「harness 维护、bootstrap、git submodule、AI 客户端配置」类踩坑请写到 `harness_ops_pitfalls.md`。
+> - 「项目专有」踩坑请写到业务仓的 `docs/ai_project_memory.md`。
+
 ## 写入约定
 
 - 每条按「现象 / 根因 / 解决 / 影响范围」四段式记录。
