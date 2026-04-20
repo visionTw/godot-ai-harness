@@ -6,36 +6,61 @@ AI harness for Godot (Cursor and ClaudeCode).
 
 - 在 Cursor 与 ClaudeCode 之间共享同一套通用流程。
 - 将通用规则、通用技能、通用 Agent、通用记忆沉淀在独立仓库。
-- 允许业务项目仅维护项目专有知识与项目专有配置。
+- 让多个业务项目通过 git submodule 接入，**只需运行一次 bootstrap 脚本**即可启用所有 AI 资产。
 
 ## 目录说明
 
-- `core/`：跨项目通用资产（rules/skills/agents/memory）。
-- `adapters/cursor/`：Cursor 适配模板与规则。
+- `core/rules/`：跨项目通用 Cursor/ClaudeCode 规则（`.mdc`）。
+  - 包含 `_harness_active.mdc`：被加载即触发 AI 回复前缀【godot-ai-harness 生效中】。
+- `core/skills/`：通用 skill（含 CCGS 提炼，74 个）。
+- `core/agents/`：通用 agent 角色（含 CCGS 提炼，38 个）。
+- `core/commands/`：通用命令模板。
+- `core/hooks/`：通用 git/agent 钩子（来自 CCGS）。
+- `core/docs/`：通用文档与 CCGS 参考资料（`core/docs/ccgs/`）。
+- `core/memory/`：跨项目通用记忆。
+- `adapters/cursor/`：Cursor MCP 与规则适配模板。
 - `adapters/claudecode/`：ClaudeCode 适配模板。
 - `templates/`：项目级本地配置模板。
-- `scripts/`：一键切换脚本与配置下发脚本。
-- `docs/`：接入说明、版本升级说明。
+- `scripts/`：客户端配置下发脚本。
+  - `use-cursor.bat` / `use-cursor.command`：全量同步到业务仓 `.cursor/_harness_*`。
+  - `use-claude.bat` / `use-claude.command`：全量同步到业务仓 `.claude/_harness_*`。
 
-## 新增可复用能力（近期沉淀）
+## 业务仓接入方式
 
-- 规则：`core/rules/post-change-runtime-check.mdc`
-  - 改动后自动进入“启动 -> smoke -> 证据回写”的闭环。
-- 技能：`core/skills/iteration-close-loop/SKILL.md`
-  - 将迭代收敛为可验收结论并提炼可复用条目。
-- 命令：
-  - `core/commands/post-change-runtime-check.md`
-  - `core/commands/windows-package-local.md`
+在业务仓内添加 submodule：
 
-## 使用方式（简版）
+```bash
+git submodule add https://github.com/visionTw/godot-ai-harness.git vendor/godot-ai-harness
+```
 
-1. 在业务项目中配置 `HARNESS_ROOT` 指向本仓库路径。
-2. 复制 `templates/project.local.template.json` 为项目私有配置并填值。
-3. 在业务项目运行：
-   - `use-cursor.bat`（生成 Cursor 侧落地文件）
-   - 或 `use-claude.bat`（生成 ClaudeCode 侧落地文件）
+然后准备业务仓的 bootstrap 脚本（参考 `Game_Desktop/tools/harness/bootstrap.command`），它会：
+
+1. `git submodule update --init --recursive vendor/godot-ai-harness`
+2. 调用 `vendor/godot-ai-harness/scripts/use-cursor.{bat,command}`
+3. 业务仓 `.cursor/` 下会出现 `_harness_*` 同步资产
+
+新机器克隆业务仓后，**只需运行一次 `tools/harness/bootstrap.{command,bat}`** 即可完成所有 AI 配置。
+
+## 启用感知
+
+`.cursor/rules/_harness_active.mdc`（来自 `core/rules/`）一旦加载，AI 助手回复正文最开头会自动出现：
+
+```
+【godot-ai-harness 生效中】
+```
+
+这是判断 harness 是否成功生效最直接的信号。
+
+## CCGS 资产说明
+
+`core/` 下大量 skill / agent / hook / docs 内容来自 [Claude Code Game Studios](https://github.com/Donchitos/Claude-Code-Game-Studios)，已按"对所有 Godot 项目可复用"标准筛选：
+
+- 已纳入：通用 game design / qa / production / gameplay / gdscript / shader / godot 相关。
+- 已剔除：unity-*、ue-*、unreal-* 与 godot-csharp/gdextension 专属内容。
+- 文档原件保留在 `core/docs/ccgs/`（含 `CCGS_LICENSE`、`CCGS_README.md`、`CCGS_CLAUDE.md`、`UPGRADING.md`、原始 rules/templates/hooks-reference）。
 
 ## 约定
 
 - 不在本仓库存放任何具体项目玩法、阶段日志与业务代码。
 - 项目专有知识应留在业务仓库（例如 `docs/ai_project_memory.md`）。
+- 修改 `core/` 后，业务仓需重跑 bootstrap 才能拿到更新；并需 `git add vendor/godot-ai-harness` 推进 submodule 指针。
