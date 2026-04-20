@@ -1,0 +1,23 @@
+---
+description: 多会话接力的上下文回溯与文档维护规则
+alwaysApply: true
+---
+
+# Session Handoff Docs Workflow
+
+- 新会话接入时，先读取：
+  - `AGENTS.md`
+  - `docs/README.md`
+  - `docs/phases/README.md`
+  - `docs/test/README.md`
+- 进入具体阶段开发前，必须读取当前阶段文档四件套：
+  - `docs/phases/phase-*/feature_plan.md`
+  - `docs/phases/phase-*/test_cases.md`
+  - `docs/phases/phase-*/development_log.md`
+  - `docs/test/phases/phase-*/automation_plan.md`
+- 会话内若发生范围变更，先更新文档后再实施代码：
+  - 设计变更更新 `docs/game_design_document.md`
+  - 阶段计划变更更新 `docs/development_phases.md`
+  - 索引变更更新 `docs/README.md`
+- 每次开发与测试后，必须回写阶段记录，保证下一会话可追溯。
+- 默认优先维护 `docs/` 的一致性与可执行性，再推进实现。

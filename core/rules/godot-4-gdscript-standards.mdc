@@ -1,0 +1,15 @@
+---
+description: Godot 4.6.2 与 GDScript 开发规范
+globs: **/*.gd
+alwaysApply: false
+---
+
+# Godot 4.6.2 GDScript Standards
+
+- 必须使用 Godot 4 语法，禁止 Godot 3 写法。
+- 所有变量、参数、返回值都应有明确类型标注。
+- 信号连接使用 Godot 4 Callable 风格：`signal_name.connect(_on_xxx)`。
+- 导出变量统一使用 `@export`，节点引用优先 `@onready var node = %NodeName`。
+- 实体行为逻辑优先采用 FSM（Idle / Move / Attack / Die 等状态拆分）。
+- 全局跨层通信通过 `EventBus`，全局进度和存档由 `GameManager` 管理。
+- 经济改动统一走 `EconomyManager` 接口，不在业务层直接改 UI 文本。

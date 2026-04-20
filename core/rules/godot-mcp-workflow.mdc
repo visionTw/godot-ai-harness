@@ -1,0 +1,19 @@
+---
+description: Godot MCP 运行反馈与阶段回写流程
+alwaysApply: true
+---
+
+# Godot MCP Workflow
+
+- 当任务涉及运行验证、调试输出采集、场景结构操作时，优先调用 `godot` MCP。
+- 当任务仅为文档维护、静态重构、文本改写时，不应强制调用 MCP。
+- 每次关键 MCP 执行后，至少记录一条可追溯证据到阶段文档：
+  - `docs/phases/phase-*/development_log.md`
+  - `docs/test/phases/phase-*/runs/YYYY-MM-DD.md`（如存在自动化执行）
+- 对齐阶段门禁：完成功能点后应执行 smoke，再视范围执行 regression 与 gate 检查。
+- 运行失败时按顺序排查：
+  1. MCP 配置是否已加载：`.cursor/mcp.json`
+  2. Node.js 与 Godot 版本是否满足项目要求（Godot 4.6.2）
+  3. 项目路径是否包含 `project.godot`
+  4. 若自动检测失败，配置 `GODOT_PATH`
+- 默认禁止自动 push；仅在用户明确要求时执行 commit / push。
