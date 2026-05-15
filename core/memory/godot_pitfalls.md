@@ -178,6 +178,21 @@
 
 ---
 
+## 九、测试与脚本
+
+### T-001 `--script` smoke 预加载 UI 脚本时不要直接依赖 Autoload 全局名
+- 现象：真实场景能正常运行，但 `godot --headless --script res://scripts/smoke/xxx.gd` 里 `preload` 某个 UI 场景脚本时报 `Identifier not found: OutgameManager` 一类编译错误。
+- 根因：`--script` 启动路径下脚本编译顺序和 Autoload 全局名解析不一定与普通场景入口一致；被 smoke 预加载的脚本在解析期直接引用 Autoload 名称，可能早于全局名可见。
+- 解决：
+  - UI / gameplay 脚本里用 `get_node_or_null("/root/OutgameManager")` 取 Autoload 节点，再用 `get()` / `call()` 访问状态或方法。
+  - smoke 需要跑完整 UI 时，优先 `load("res://scenes/Target.tscn") as PackedScene` 后 `instantiate()`，避免直接 `SomeSceneScript.new()` 绕过场景资源路径。
+  - VAT 仍走 `VatRunner.tscn` 或 `tools/visual_smoke/run_vat.command`，不要用 `--script` 直接跑 VAT 用例。
+- 影响范围：所有用 `--script` 做 headless smoke、同时预加载真实 UI 场景脚本的 Godot 4.x 项目。
+- 录入：2026-05 / Game_RogueCard。
+- 复现频次：+1
+
+---
+
 ## 模板（复制使用）
 
 ```
